@@ -11,29 +11,26 @@ jobs:
   generate-ppt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        run: |
+          git clone https://github.com/kranthikrishnad/Repo1.git .
       
       - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-      
-      - name: Install dependencies
-        run: pip install python-pptx
+        run: |
+          python3 --version
+          pip install --upgrade pip
+          pip install python-pptx
       
       - name: Generate PowerPoint
-        run: python generate_ppt.py Healthcare_Data_for_AI_POV.md Healthcare_Data_for_AI_POV.pptx
+        run: python3 generate_ppt.py Healthcare_Data_for_AI_POV.md Healthcare_Data_for_AI_POV.pptx
       
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: presentation
-          path: Healthcare_Data_for_AI_POV.pptx
+      - name: Configure git
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
       
       - name: Commit and push generated PPTX
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
           git add Healthcare_Data_for_AI_POV.pptx
           git commit -m "Generate PowerPoint presentation" || true
-          git push
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kranthikrishnad/Repo1.git
