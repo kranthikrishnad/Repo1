@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Data for AI - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 30px;
+            text-align: center;
+            animation: slideDown 0.5s ease;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+            flex-wrap: wrap;
+        }
+        
+        .nav-tabs button {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+        
+        .nav-tabs button:hover {
+            background: #e8e8e8;
+            color: #667eea;
+        }
+        
+        .nav-tabs button.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: -2px;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            color: #764ba2;
+            font-size: 1.3em;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .accordion {
+            margin: 20px 0;
+        }
+        
+        .accordion-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .accordion-item:hover {
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+        
+        .accordion-header {
+            background: #f9f9f9;
+            padding: 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .accordion-header:hover {
+            background: #f0f4ff;
+            color: #764ba2;
+        }
+        
+        .accordion-header.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .accordion-icon {
+            transition: transform 0.3s ease;
+            font-size: 1.2em;
+        }
+        
+        .accordion-header.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+        
+        .accordion-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .accordion-content.active {
+            display: block;
+        }
+        
+        .accordion-content ul {
+            margin-left: 20px;
+        }
+        
+        .accordion-content li {
+            margin-bottom: 10px;
+            line-height: 1.8;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .comparison-card {
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .comparison-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+        }
+        
+        .comparison-card h4 {
+            color: #764ba2;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .comparison-card.current {
+            border-left-color: #e74c3c;
+        }
+        
+        .comparison-card.future {
+            border-left-color: #27ae60;
+        }
+        
+        .pillar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .pillar-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .pillar-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+        }
+        
+        .pillar-card h4 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+        }
+        
+        .pillar-card ul {
+            margin-left: 20px;
+        }
+        
+        .pillar-card li {
+            margin-bottom: 10px;
+            line-height: 1.7;
+        }
+        
+        .value-box {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .value-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .value-box ul {
+            margin-left: 20px;
+        }
+        
+        .value-box li {
+            margin-bottom: 8px;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline-item {
+            margin-bottom: 30px;
+            padding-left: 50px;
+            position: relative;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px #667eea;
+        }
+        
+        .timeline-item h4 {
+            color: #764ba2;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .timeline-item p {
+            color: #666;
+            margin-left: 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        button.btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+        
+        button.btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        button.btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            color: #000;
+        }
+        
+        footer {
+            background: #f0f0f0;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            display: none;
+            z-index: 999;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .scroll-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5);
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .nav-tabs button {
+                font-size: 0.85em;
+                min-width: 120px;
+                padding: 12px 10px;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pillar-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 Healthcare Data for AI</h1>
+            <p>Interactive Demo - Point of View</p>
+        </header>
+        
+        <div class="nav-tabs">
+            <button class="tab-btn active" data-tab="overview">Overview</button>
+            <button class="tab-btn" data-tab="problems">Problems</button>
+            <button class="tab-btn" data-tab="solution">Solution</button>
+            <button class="tab-btn" data-tab="approach">Approach</button>
+            <button class="tab-btn" data-tab="value">Business Value</button>
+            <button class="tab-btn" data-tab="comparison">Comparison</button>
+            <button class="tab-btn" data-tab="roadmap">Roadmap</button>
+        </div>
+        
+        <div class="content">
+            <!-- OVERVIEW TAB -->
+            <div id="overview" class="tab-content active">
+                <h2>Vision & Overview</h2>
+                
+                <div class="value-box">
+                    <h4>🎯 Vision</h4>
+                    <p><strong>Enable responsible AI-driven transformation in healthcare through intelligent data management</strong></p>
+                </div>
+                
+                <h3>Key Objectives</h3>
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>Smarter Clinical Decisions</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p>Deliver smarter clinical decisions, faster patient outcomes, and scalable healthcare AI across the enterprise. Our platform enables healthcare organizations to leverage data-driven insights for better patient care.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>Trust & Privacy</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p>Empower healthcare organizations to harness patient data, operational insights, and clinical knowledge while maintaining trust, privacy, and compliance with regulations like HIPAA and GDPR.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>AI-Ready Ecosystem</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p>Transform healthcare from data-fragmented silos to an AI-ready, insight-driven ecosystem where data is unified, accessible, and ready for intelligent applications.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- PROBLEMS TAB -->
+            <div id="problems" class="tab-content">
+                <h2>Healthcare AI Challenges</h2>
+                
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>📊 Poor Data Quality</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul>
+                                <li>Incomplete patient records across multiple systems</li>
+                                <li>Inconsistent data formats from EHRs, imaging systems, and labs</li>
+                                <li>Missing critical data points impacting clinical accuracy</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>🔒 Lack of Governance & Compliance</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul>
+                                <li>HIPAA, GDPR, and regulatory complexity</li>
+                                <li>No unified data ownership or stewardship</li>
+                                <li>Data lineage and auditability gaps</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>🗂️ Siloed & Unstructured Data</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul>
+                                <li>Data trapped in legacy systems (EHR, lab systems, imaging archives)</li>
+                                <li>Clinical notes and unstructured text not captured for AI analysis</li>
+                                <li>Inability to correlate patient data across care episodes and providers</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>🤖 AI Readiness Gap</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul>
+                                <li>Clinical teams lack confidence in AI-driven insights</li>
+                                <li>Limited integration between AI systems and clinical workflows</li>
+                                <li>No clear ROI framework for AI investments</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SOLUTION TAB -->
+            <div id="solution" class="tab-content">
+                <h2>Solution Framework</h2>
+                
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>🔍 Data Discovery & Assessment</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul>
+                                <li>Map clinical data landscape across all systems</li>
+                                <li>Identify high-value data assets for AI applications</li>
+                                <li>Assess data quality, completeness, and clinical relevance</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>🧹 Data Preparation & Enrichment</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul>
+                                <li>Clean and standardize patient records</li>
+                                <li>Extract insights from unstructured clinical notes using NLP</li>
+                                <li>Create longitudinal patient profiles linking care episodes</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>🔗 Data Integration & Interoperability</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul>
+                                <li>Unified patient identifiers across systems</li>
+                                <li>Real-time data integration from EHRs, labs, imaging, pharmacies</li>
+                                <li>FHIR-compliant data exchange for seamless interoperability</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>⚖️ Governance & Compliance Framework</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul>
+                                <li>Privacy-by-design data architecture</li>
+                                <li>De-identification and anonymization protocols</li>
+                                <li>Audit trails and consent management</li>
+                                <li>Regulatory compliance (HIPAA, GDPR, etc.)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <div class="accordion-header">
+                            <span>🚀 AI-Ready Data Platform</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <ul>
+                                <li>Curated datasets for clinical use cases (readmission prediction, diagnosis support, treatment optimization)</li>
+                                <li>Federated learning for multi-institutional AI without data movement</li>
+                                <li>Real-time data pipelines for clinical decision support</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- APPROACH TAB -->
+            <div id="approach" class="tab-content">
+                <h2>Strategic Approach</h2>
+                <p style="margin-bottom: 30px;"><strong>"Clinical Intelligence, Operationally Smart"</strong> - A Three-Pillar Strategy</p>
+                
+                <div class="pillar-grid">
+                    <div class="pillar-card">
+                        <h4>🏥 Clinical Pillar</h4>
+                        <ul>
+                            <li>Domain expertise from physicians, nurses, and clinical informaticists</li>
+                            <li>Deep understanding of patient workflows and clinical outcomes</li>
+                            <li>Co-design AI solutions with end-users at point of care</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="pillar-card">
+                        <h4>💾 Data & Technology Pillar</h4>
+                        <ul>
+                            <li>Modern cloud data platforms (cloud data warehouses, data lakes)</li>
+                            <li>Advanced data engineering for healthcare scale</li>
+                            <li>MLOps infrastructure for production AI models</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="pillar-card">
+                        <h4>🛡️ Governance & Trust Pillar</h4>
+                        <ul>
+                            <li>Data ethics and responsible AI frameworks</li>
+                            <li>Explainable AI for clinical transparency</li>
+                            <li>Continuous monitoring and model governance</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="value-box" style="margin-top: 30px;">
+                    <h4>End-to-End Transformation</h4>
+                    <p><strong>Data Readiness</strong> → <strong>Clinical Insights</strong> → <strong>Actionable Intelligence</strong> → <strong>Measurable Patient & Operational Outcomes</strong></p>
+                </div>
+            </div>
+            
+            <!-- VALUE TAB -->
+            <div id="value" class="tab-content">
+                <h2>Business Value</h2>
+                
+                <div class="value-box">
+                    <h4>🏥 Clinical Outcomes</h4>
+                    <ul>
+                        <li>Early disease detection and intervention</li>
+                        <li>Reduced readmission rates through predictive insights</li>
+                        <li>Personalized treatment recommendations</li>
+                        <li>Improved patient safety through anomaly detection</li>
+                    </ul>
+                </div>
+                
+                <div class="value-box">
+                    <h4>⚙️ Operational Excellence</h4>
+                    <ul>
+                        <li>Optimized resource allocation and staffing</li>
+                        <li>Reduced operational costs through workflow efficiency</li>
+                        <li>Faster clinical decision-making</li>
+                        <li>Better inventory and supply chain management</li>
+                    </ul>
+                </div>
+                
+                <div class="value-box">
+                    <h4>🎯 Strategic Advantage</h4>
+                    <ul>
+                        <li>Competitive differentiation through AI-powered care</li>
+                        <li>Scalable models across multi-hospital networks</li>
+                        <li>Foundation for precision medicine initiatives</li>
+                        <li>Enhanced patient experience and engagement</li>
+                    </ul>
+                </div>
+                
+                <div class="value-box">
+                    <h4>💰 Financial Impact</h4>
+                    <ul>
+                        <li>Revenue growth from new care models</li>
+                        <li>Cost reduction through operational AI</li>
+                        <li>Reduced compliance and audit costs</li>
+                        <li>Faster time-to-value for AI investments</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- COMPARISON TAB -->
+            <div id="comparison" class="tab-content">
+                <h2>Current vs. Future State</h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>Current State</th>
+                            <th>With Healthcare Data for AI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Data Quality</strong></td>
+                            <td>Fragmented, inconsistent</td>
+                            <td>Unified, validated, trustworthy</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Clinical Insights</strong></td>
+                            <td>Limited by data silos</td>
+                            <td>Real-time, actionable intelligence</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Time to Decision</strong></td>
+                            <td>Days/weeks for complex cases</td>
+                            <td>Minutes/hours with AI support</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Compliance Risk</strong></td>
+                            <td>High audit burden</td>
+                            <td>Automated governance, audit-ready</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AI Confidence</strong></td>
+                            <td>Limited physician trust</td>
+                            <td>Explainable, evidence-based recommendations</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td>Point solutions in pockets</td>
+                            <td>Enterprise-wide AI platform</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3 style="margin-top: 40px;">Quick Comparison</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-card current">
+                        <h4>❌ Current Challenges</h4>
+                        <ul>
+                            <li>Data trapped in silos</li>
+                            <li>Inconsistent quality</li>
+                            <li>Manual processes</li>
+                            <li>Low AI trust</li>
+                            <li>Compliance burden</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="comparison-card future">
+                        <h4>✅ Future Opportunities</h4>
+                        <ul>
+                            <li>Unified data ecosystem</li>
+                            <li>High-quality insights</li>
+                            <li>Automated workflows</li>
+                            <li>Explainable AI</li>
+                            <li>Built-in compliance</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ROADMAP TAB -->
+            <div id="roadmap" class="tab-content">
+                <h2>Implementation Roadmap</h2>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h4>1. Assess Current State</h4>
+                        <p>Map healthcare data landscape and AI readiness across all systems and departments. Identify data sources, quality issues, and compliance requirements.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>2. Define Clinical Use Cases</h4>
+                        <p>Prioritize highest-impact AI opportunities with clinical stakeholders. Focus on areas like readmission prediction, diagnosis support, and treatment optimization.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>3. Build Data Foundation</h4>
+                        <p>Implement governance, quality, and integration frameworks. Establish data standards, security protocols, and compliance mechanisms.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>4. Pilot & Validate</h4>
+                        <p>Launch proof-of-concept with clinical validation. Test AI models with real patient data and gather feedback from clinical teams.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>5. Scale & Optimize</h4>
+                        <p>Roll out enterprise-wide with continuous improvement. Expand to multiple departments and healthcare networks.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h4>6. Govern & Monitor</h4>
+                        <p>Establish ongoing AI governance and compliance oversight. Monitor model performance and ensure continuous regulatory compliance.</p>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 40px;">Key Success Metrics</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="number">50%</div>
+                        <div class="label">Reduction in Decision Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">30%</div>
+                        <div class="label">Operational Cost Savings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">25%</div>
+                        <div class="label">Readmission Rate Reduction</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">99%</div>
+                        <div class="label">Compliance Audit Ready</div>
+                    </div>
+                </div>
+                
+                <div class="btn-group" style="margin-top: 40px;">
+                    <button class="btn btn-primary" onclick="showModal('contact')">Get Started</button>
+                    <button class="btn btn-primary" onclick="showModal('faq')">FAQ</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>&copy; 2024 Healthcare Data for AI Initiative. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <!-- MODALS -->
+    <div id="contact-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('contact')">&times;</span>
+            <h2>Get Started with Healthcare Data for AI</h2>
+            <p style="margin: 20px 0;">Ready to transform your healthcare organization? Contact our team to schedule a demo and consultation.</p>
+            <form style="margin-top: 20px;">
+                <input type="text" placeholder="Your Name" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;">
+                <input type="email" placeholder="Your Email" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px;">
+                <textarea placeholder="Your Message" style="width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; height: 100px;"></textarea>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">Send Message</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="faq-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('faq')">&times;</span>
+            <h2>Frequently Asked Questions</h2>
+            
+            <h4 style="margin-top: 20px; color: #667eea;">How long does implementation take?</h4>
+            <p>Implementation typically takes 6-12 months depending on your organization's size and complexity. We follow an agile approach with phased rollouts.</p>
+            
+            <h4 style="margin-top: 20px; color: #667eea;">Is this HIPAA compliant?</h4>
+            <p>Yes, our entire solution is built with privacy-by-design principles and is fully HIPAA, GDPR, and other healthcare compliance standards compliant.</p>
+            
+            <h4 style="margin-top: 20px; color: #667eea;">What data sources can you integrate?</h4>
+            <p>We support integration with EHRs, lab systems, imaging archives, pharmacies, claims data, and custom data sources. We're compatible with most major healthcare IT systems.</p>
+            
+            <h4 style="margin-top: 20px; color: #667eea;">What ROI can we expect?</h4>
+            <p>Organizations typically see 20-30% operational cost reduction and 25-50% improvement in clinical decision speed within the first year of implementation.</p>
+        </div>
+    </div>
+    
+    <!-- SCROLL TO TOP BUTTON -->
+    <button class="scroll-to-top" id="scroll-to-top" onclick="scrollToTop()">↑</button>
+    
+    <script>
+        // Tab Navigation
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Remove active class from all buttons
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Show selected tab
+                document.getElementById(tabName).classList.add('active');
+                this.classList.add('active');
+            });
+        });
+        
+        // Accordion
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const isActive = this.classList.contains('active');
+                
+                // Close all accordions
+                document.querySelectorAll('.accordion-content').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                document.querySelectorAll('.accordion-header').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Open clicked accordion
+                if (!isActive) {
+                    content.classList.add('active');
+                    this.classList.add('active');
+                }
+            });
+        });
+        
+        // Modal Functions
+        function showModal(modalName) {
+            document.getElementById(modalName + '-modal').style.display = 'block';
+        }
+        
+        function closeModal(modalName) {
+            document.getElementById(modalName + '-modal').style.display = 'none';
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+        
+        // Scroll to Top
+        window.addEventListener('scroll', function() {
+            const scrollBtn = document.getElementById('scroll-to-top');
+            if (window.pageYOffset > 300) {
+                scrollBtn.style.display = 'block';
+            } else {
+                scrollBtn.style.display = 'none';
+            }
+        });
+        
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+</html>
