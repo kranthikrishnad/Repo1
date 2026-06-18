@@ -1,0 +1,39 @@
+name: Generate PowerPoint
+
+on:
+  push:
+    paths:
+      - 'Healthcare_Data_for_AI_POV.md'
+      - 'generate_ppt.py'
+  workflow_dispatch:
+
+jobs:
+  generate-ppt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: pip install python-pptx
+      
+      - name: Generate PowerPoint
+        run: python generate_ppt.py Healthcare_Data_for_AI_POV.md Healthcare_Data_for_AI_POV.pptx
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: presentation
+          path: Healthcare_Data_for_AI_POV.pptx
+      
+      - name: Commit and push generated PPTX
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add Healthcare_Data_for_AI_POV.pptx
+          git commit -m "Generate PowerPoint presentation" || true
+          git push
