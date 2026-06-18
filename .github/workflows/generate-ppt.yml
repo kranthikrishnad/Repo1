@@ -1,40 +1,29 @@
 name: Generate PowerPoint
 
 on:
-  push:
-    paths:
-      - 'Healthcare_Data_for_AI_POV.md'
-      - 'generate_ppt.py'
   workflow_dispatch:
 
 jobs:
   generate-ppt:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       
       - name: Set up Python
-        run: |
-          python3 --version
-          pip install --upgrade pip
-          pip install python-pptx
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: pip install python-pptx
       
       - name: Generate PowerPoint
-        run: python3 generate_ppt.py Healthcare_Data_for_AI_POV.md Healthcare_Data_for_AI_POV.pptx
+        run: python generate_ppt.py Healthcare_Data_for_AI_POV.md Healthcare_Data_for_AI_POV.pptx
       
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: presentation
           path: Healthcare_Data_for_AI_POV.pptx
-      
-      - name: Configure git and push
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git add Healthcare_Data_for_AI_POV.pptx
-          git commit -m "Generate PowerPoint presentation" || echo "No changes to commit"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          retention-days: 30
